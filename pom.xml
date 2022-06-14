@@ -22,6 +22,13 @@
     </scm>
 
     <build>
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.7.0</version>
+            </extension>
+        </extensions>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -39,9 +46,6 @@
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>com.fizzed.geoip.GeoipServer</mainClass>
                                 </transformer>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ResourceBundleAppendingTransformer">
-                                    <basename>lang/lang</basename>
-                                </transformer>
                             </transformers>
                         </configuration>
                     </execution>
@@ -55,6 +59,11 @@
             <id>native</id>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>kr.motd.maven</groupId>
+                        <artifactId>os-maven-plugin</artifactId>
+                        <version>1.7.0</version>
+                    </plugin>
                     <plugin>
                         <groupId>org.graalvm.buildtools</groupId>
                         <artifactId>native-maven-plugin</artifactId>
@@ -83,7 +92,7 @@
                                 <param>${project.build.directory}/${project.artifactId}-${project.version}.jar</param>
                             </classpath>
 					        <!-- normal config that works on linux -->
-                            <imageName>geoip-server</imageName>
+                            <imageName>geoip-server-${os.detected.name}-${os.detected.arch}</imageName>
                             <mainClass>com.fizzed.geoip.GeoipServer</mainClass>
                             <buildArgs>
 <!--                                <buildArg>&#45;&#45;static</buildArg>-->
