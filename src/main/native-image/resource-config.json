@@ -1,0 +1,13 @@
+{
+  "resources":{
+  "includes":[{
+      "pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"
+    }]},
+  "bundles":[{
+      "name":"net.sourceforge.argparse4j.internal.ArgumentParserImpl",
+      "locales":[
+        "", 
+        "en"
+      ]
+    }]
+}
