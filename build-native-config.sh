@@ -13,7 +13,7 @@ APP_PID=$!
 sleep 2
 
 # hit the server once (one w/ a postal code is key)
-curl http://localhost:18080/api/v1/ips/24.192.251.98
+curl http://localhost:18888/api/v1/ips/24.192.251.98
 
 # kill the app (mimic CTRL-C)
 kill -TERM $APP_PID

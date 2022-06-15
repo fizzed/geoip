@@ -1,0 +1,15 @@
+FROM alpine:3.16.0
+
+RUN wget https://download.bell-sw.com/vm/22.1.0/bellsoft-liberica-vm-openjdk17.0.3.1+2-22.1.0+2-linux-x64-musl.apk
+RUN wget -P /etc/apk/keys/ https://apk.bell-sw.com/info@bell-sw.com-5fea454e.rsa.pub
+RUN apk add bellsoft-liberica-vm-openjdk17.0.3.1+2-22.1.0+2-linux-x64-musl.apk
+RUN rm bellsoft-liberica-vm-openjdk17.0.3.1+2-22.1.0+2-linux-x64-musl.apk
+
+RUN apk add maven git alpine-sdk zlib-dev
+
+RUN echo "" >> /etc/profile
+RUN echo "export JAVA_HOME=/opt/bellsoft/liberica-vm-22.1.0-openjdk17" >> /etc/profile
+RUN echo "export PATH=\"\$JAVA_HOME/bin:\$PATH\"" >> /etc/profile
+ENV ENV="/etc/profile"
+
+CMD ["sh"]

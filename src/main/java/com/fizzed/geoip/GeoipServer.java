@@ -50,7 +50,7 @@ public class GeoipServer {
         parser.addArgument("--port")
             .dest("port")
             .type(Integer.class)
-            .setDefault(18080)
+            .setDefault(18888)
             .help("Port to bind server to");
         parser.addArgument("--download-every-interval")
             .dest("downloadEveryInterval")

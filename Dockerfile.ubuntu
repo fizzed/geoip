@@ -1,0 +1,25 @@
+FROM ubuntu:16.04
+
+RUN apt-get update
+RUN apt-get install -y wget build-essential git libz-dev
+RUN wget --no-check-certificate https://github.com/graalvm/graalvm-ce-builds/releases/download/vm-22.1.0/graalvm-ce-java17-linux-amd64-22.1.0.tar.gz
+RUN tar zxvf graalvm-ce-java17-linux-amd64-22.1.0.tar.gz
+RUN rm -f graalvm-ce-java17-linux-amd64-22.1.0.tar.gz
+RUN mkdir -p /usr/lib/jvm
+RUN mv graalvm-ce-java17-22.1.0 /usr/lib/jvm/
+RUN /usr/lib/jvm/graalvm-ce-java17-22.1.0/bin/gu install native-image
+
+RUN wget --no-check-certificate https://dlcdn.apache.org/maven/maven-3/3.8.6/binaries/apache-maven-3.8.6-bin.tar.gz
+RUN tar zxvf apache-maven-3.8.6-bin.tar.gz
+RUN rm -f apache-maven-3.8.6-bin.tar.gz
+RUN mkdir /opt/maven
+RUN mv apache-maven-3.8.6 /opt/maven
+
+
+RUN echo "" >> /etc/profile
+RUN echo "export JAVA_HOME=/usr/lib/jvm/graalvm-ce-java17-22.1.0" >> /etc/profile
+RUN echo "export MAVEN_HOME=/opt/maven/apache-maven-3.8.6" >> /etc/profile
+RUN echo "export PATH=\"\$JAVA_HOME/bin:\$MAVEN_HOME/bin:\$PATH\"" >> /etc/profile
+#ENV ENV="/etc/profile"
+
+CMD ["sh"]
