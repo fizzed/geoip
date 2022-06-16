@@ -49,8 +49,8 @@ public class GeoipServer {
             .help("Your maxmind license key");
         parser.addArgument("--port")
             .dest("port")
-            .type(Integer.class)
-            .setDefault(18888)
+            .type(String.class)
+            .setDefault("18888")
             .help("Port to bind server to");
         parser.addArgument("--download-every-interval")
             .dest("downloadEveryInterval")
@@ -82,7 +82,7 @@ public class GeoipServer {
                 .orElse(null);
             editionId = res.getString("editionId");
             licenseKey = res.getString("licenseKey");
-            port = res.getInt("port");
+            port = Integer.valueOf(res.getString("port"));
             downloadEveryInterval = TimeDuration.parse(res.get("downloadEveryInterval"));
             developer = res.getBoolean("developer");
             stubbedLocationsFile = ofNullable(res.getString("stubbedLocationsFile"))
