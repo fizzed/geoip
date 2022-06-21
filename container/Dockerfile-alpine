@@ -1,15 +1,57 @@
-FROM alpine:3.16.0
+FROM alpine:3.16.0 as base
 
-RUN wget https://download.bell-sw.com/vm/22.1.0/bellsoft-liberica-vm-openjdk17.0.3.1+2-22.1.0+2-linux-x64-musl.apk
-RUN wget -P /etc/apk/keys/ https://apk.bell-sw.com/info@bell-sw.com-5fea454e.rsa.pub
-RUN apk add bellsoft-liberica-vm-openjdk17.0.3.1+2-22.1.0+2-linux-x64-musl.apk
-RUN rm bellsoft-liberica-vm-openjdk17.0.3.1+2-22.1.0+2-linux-x64-musl.apk
+RUN apk upgrade -U --no-cache
+RUN apk add -U --no-cache bash
 
-RUN apk add maven git alpine-sdk zlib-dev
+# Enable prompt colors
+RUN ln -s /etc/profile.d/color_prompt.sh.disabled /etc/profile.d/color_prompt.sh
 
-RUN echo "" >> /etc/profile
-RUN echo "export JAVA_HOME=/opt/bellsoft/liberica-vm-22.1.0-openjdk17" >> /etc/profile
-RUN echo "export PATH=\"\$JAVA_HOME/bin:\$PATH\"" >> /etc/profile
+# Load the profile when launching the shell without login
 ENV ENV="/etc/profile"
 
-CMD ["sh"]
+
+FROM base as dev
+
+# Add maven and other build tools (will pull in openjdk as well)
+RUN apk add -U --no-cache maven alpine-sdk zlib-dev
+
+
+FROM dev as graalvmsdk
+
+RUN wget https://download.bell-sw.com/vm/22.1.0/bellsoft-liberica-vm-openjdk17.0.3.1+2-22.1.0+2-linux-x64-musl.apk
+# Remove before flight
+# RUN wget http://127.0.0.1:8000/bellsoft-liberica-vm-openjdk17.0.3.1+2-22.1.0+2-linux-x64-musl.apk
+RUN wget -P /etc/apk/keys/ https://apk.bell-sw.com/info@bell-sw.com-5fea454e.rsa.pub
+RUN apk add bellsoft-liberica-vm-openjdk17.0.3.1+2-22.1.0+2-linux-x64-musl.apk
+
+
+FROM dev as builder
+
+# Bring in apk-installed graalvm sdk (leaving behind the downloaded package)
+COPY --from=graalvmsdk /opt/bellsoft/ /opt/bellsoft/
+COPY --from=graalvmsdk /lib/apk/db/ /lib/apk/db/
+
+RUN echo "export JAVA_HOME=/opt/bellsoft/liberica-vm-22.1.0-openjdk17" > /etc/profile.d/java_home.sh
+RUN echo  'export PATH="${JAVA_HOME}/bin:${PATH}"' > /etc/profile.d/path_jdk_prepend.sh
+
+WORKDIR /project
+
+COPY container/docker-entrypoint.sh /
+
+ENTRYPOINT [ "/docker-entrypoint.sh" ]
+CMD ["/bin/sh"]
+
+
+FROM builder as built
+
+COPY pom.xml .
+COPY src ./src/
+
+RUN source /etc/profile ; mvn -Pnative clean package
+
+
+FROM base as native
+
+ENTRYPOINT [ "/usr/local/bin/geoip-server-linux-x86_64" ]
+
+COPY --from=built /project/target/geoip-server-linux-x86_64 /usr/local/bin/
