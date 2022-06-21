@@ -31,7 +31,6 @@ public class Maxmind {
     private Path dataDirectory;
     private String licenseKey;
     private String editionId;
-    private boolean tryAllEditions;
     private Path staticDataFile;
     private Boolean developer;
     private List<IpLocation> stubbedLocations;
@@ -99,15 +98,6 @@ public class Maxmind {
     public Maxmind setStaticDataFile(Path staticDataFile) {
         this.staticDataFile = staticDataFile;
 
-        return this;
-    }
-
-    public boolean isTryAllEditions() {
-        return tryAllEditions;
-    }
-
-    public Maxmind setTryAllEditions(boolean tryAllEditions) {
-        this.tryAllEditions = tryAllEditions;
         return this;
     }
 
@@ -402,9 +392,7 @@ public class Maxmind {
             Country country = null;
 
             try {
-
-
-                if (tryAllEditions || this.edition == MaxmindEdition.CITY) {
+                if (this.edition == MaxmindEdition.CITY) {
                     Optional<CityResponse> cityResponse = this.reader.tryCity(inetAddress);
                     if (cityResponse.isPresent()) {
                         location = cityResponse.get().getLocation();
@@ -414,8 +402,7 @@ public class Maxmind {
                         country = cityResponse.get().getCountry();
                     }
                 }
-
-                if (tryAllEditions || this.edition == MaxmindEdition.COUNTRY) {
+                else if (this.edition == MaxmindEdition.COUNTRY) {
                     Optional<CountryResponse> countryResponse = this.reader.tryCountry(inetAddress);
                     if (countryResponse.isPresent()) {
                         country = countryResponse.get().getCountry();
