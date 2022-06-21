@@ -1,5 +1,8 @@
 [
 {
+  "name":"[Linet.ipaddr.ipv4.IPv4Address;"
+},
+{
   "name":"com.fasterxml.jackson.databind.ext.Java7HandlersImpl",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
@@ -13,16 +16,19 @@
   "queryAllDeclaredMethods":true,
   "queryAllDeclaredConstructors":true,
   "methods":[
+    {"name":"getCanonicalIp","parameterTypes":[] }, 
     {"name":"getCityName","parameterTypes":[] }, 
     {"name":"getCountryCode","parameterTypes":[] }, 
     {"name":"getCountryName","parameterTypes":[] }, 
     {"name":"getIp","parameterTypes":[] }, 
     {"name":"getLat","parameterTypes":[] }, 
     {"name":"getLng","parameterTypes":[] }, 
+    {"name":"getNormalizedIp","parameterTypes":[] }, 
     {"name":"getPostalCode","parameterTypes":[] }, 
     {"name":"getRegionCode","parameterTypes":[] }, 
     {"name":"getRegionName","parameterTypes":[] }, 
-    {"name":"getTz","parameterTypes":[] }
+    {"name":"getTz","parameterTypes":[] }, 
+    {"name":"getVersion","parameterTypes":[] }
   ]
 },
 {

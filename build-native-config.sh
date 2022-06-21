@@ -6,7 +6,7 @@ JAVA_HOME=/usr/lib/jvm/graalvm-ce-java17-22.1.0
 mvn clean package
 
 # start server in background
-$JAVA_HOME/bin/java -agentlib:native-image-agent=config-output-dir=target/native-image-config -jar target/geoip-0.0.1-SNAPSHOT.jar --try-all-editions=true --static-data-file data/GeoLite2-City.mmdb &
+$JAVA_HOME/bin/java -agentlib:native-image-agent=config-output-dir=target/native-image-config -jar target/geoip-*-SNAPSHOT.jar --try-all-editions=true --static-data-file data/GeoLite2-City.mmdb &
 APP_PID=$!
 
 # let it startup in a few seconds

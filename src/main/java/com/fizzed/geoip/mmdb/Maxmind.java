@@ -209,8 +209,14 @@ public class Maxmind {
             if (this.stubbedLocations == null) {
                 this.stubbedLocations = new ArrayList<>();
                 for (String ip : asList("127.0.0.1", "::1", "0:0:0:0:0:0:0:1")) {
+                    final IPAddressString address = new IPAddressString(ip);
+                    final IPAddress hostAddress = address.getHostAddress();
+
                     this.stubbedLocations.add(new IpLocation()
                         .setIp(ip)
+                        .setCanonicalIp(hostAddress.toCanonicalString())
+                        .setNormalizedIp(address.toNormalizedString())
+                        .setVersion(address.isIPv6() ? 6 : 4)
                         .setCountryCode("US")
                         .setCountryName("United States")
                         .setRegionCode("MI")
@@ -428,7 +434,6 @@ public class Maxmind {
             return new IpLocation()
                 .setIp(ip)
                 .setCanonicalIp(hostAddress.toCanonicalString())
-                //.setFullIp(hostAddress.toFullString())
                 .setNormalizedIp(address.toNormalizedString())
                 .setVersion(address.isIPv6() ? 6 : 4)
                 .setCountryCode(ofNullable(country).map(v -> v.getIsoCode()).orElse(null))
