@@ -1,7 +1,7 @@
 
 Set the release version
 
-	mvn versions:set
+	mvn versions:set versions:commit
 
 Commit to repository
 
