@@ -121,6 +121,7 @@ public class GeoipServer {
 
         final HttpRouter router = new HttpRouter()
             .GET("/api/v1/management/health", controller::api_v1_health_get)
+            .GET("/api/v1/ips/me", controller::api_v1_ips_me)
             .GET("/api/v1/ips/.*", controller::api_v1_ips_get)
             .GET("/", controller::dashboard);
 

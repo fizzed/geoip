@@ -1,5 +1,6 @@
 package com.fizzed.geoip;
 
+import com.fizzed.crux.util.MoreObjects;
 import com.fizzed.geoip.mmdb.Maxmind;
 import com.fizzed.geoip.models.IpLocation;
 import com.fizzed.mhttpd.Request;
@@ -10,7 +11,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import static com.fizzed.crux.util.Maybe.maybe;
+import static com.fizzed.crux.util.MaybeStream.maybeStream;
+import static com.fizzed.crux.util.MoreObjects.isEmpty;
 import static com.fizzed.geoip.utils.Json.OBJECT_MAPPER;
 
 public class GeoipController {
@@ -37,8 +43,11 @@ public class GeoipController {
                 "Database Refreshed: " + maxmind.getDataUpdatedAt() + "<br/>" +
                 "<br/>" +
                 "<a href='/api/v1/management/health'>/api/v1/management/health</a><br/>" +
+                "<a href='/api/v1/ips/me'>/api/v1/ips/me</a><br/>" +
                 "<a href='/api/v1/ips/127.0.0.1'>/api/v1/ips/127.0.0.1</a><br/>" +
                 "<a href='/api/v1/ips/24.192.251.1'>/api/v1/ips/24.192.251.1</a><br/>" +
+                "<a href='/api/v1/ips/2603:c020:400c:8e00::d2'>/api/v1/ips/2603:c020:400c:8e00::d2</a><br/>" +
+                "<a href='/api/v1/ips/2603:c020:400c:8e00:0000:0000:0000:00d2'>/api/v1/ips/2603:c020:400c:8e00:0000:0000:0000:00d2</a><br/>" +
                 "<a href='/api/v1/ips/2600:1702:1e30:b870:a125:5be2:12b1:9c96'>/api/v1/ips/2600:1702:1e30:b870:a125:5be2:12b1:9c96</a><br/>" +
                 "<a href='/api/v1/ips/212.82.92.200'>/api/v1/ips/212.82.92.200</a>");
     }
@@ -76,11 +85,28 @@ public class GeoipController {
             .setBody(body);
     }
 
+    public Response api_v1_ips_me(Request request) throws IOException {
+        // use proxy forwarded ip, or fallback to peer
+        final String xForwardedForHeader = request.getHeader("X-Forwarded-For");
+        // e.g. 203.0.113.195, 70.41.3.18, 150.172.238.178
+        final List<String> xForwardedForIps = xForwardedForHeader != null ?
+            maybeStream(xForwardedForHeader.split(",")).jvmStream().map(v -> v.trim()).collect(Collectors.toList()) : null;
+        final String xForwardedForIp = !isEmpty(xForwardedForIps) ? MoreObjects.last(xForwardedForIps) : null;
+        final String remoteAddress = request.getRemoteAddress();
+        final String ip = maybe(xForwardedForIp).orElse(remoteAddress);
+
+        return this.lookupIp(ip);
+    }
+
     public Response api_v1_ips_get(Request request) throws IOException {
         // extract out the ip to lookup
         final int lastSlashPos = request.getPath().lastIndexOf('/');
         final String ip = request.getPath().substring(lastSlashPos+1);
 
+        return this.lookupIp(ip);
+    }
+
+    private Response lookupIp(String ip) throws IOException {
         IpLocation ipLocation;
         try {
             ipLocation = this.maxmind.lookup(ip);
