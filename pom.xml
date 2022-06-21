@@ -3,7 +3,7 @@
 
     <groupId>com.fizzed</groupId>
     <artifactId>geoip</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.4-SNAPSHOT</version>
     <packaging>jar</packaging>
     
     <parent>
@@ -30,6 +30,11 @@
             </extension>
         </extensions>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M7</version>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -95,7 +100,6 @@
                             <imageName>geoip-server-${os.detected.name}-${os.detected.arch}</imageName>
                             <mainClass>com.fizzed.geoip.GeoipServer</mainClass>
                             <buildArgs>
-<!--                                <buildArg>&#45;&#45;static</buildArg>-->
                                 <buildArg>--no-fallback</buildArg>
                                 <buildArg>-H:+ReportExceptionStackTraces</buildArg>
                                 <buildArg>-H:ReflectionConfigurationFiles=${project.basedir}/src/main/native-image/reflect-config.json</buildArg>
@@ -128,15 +132,21 @@
         </dependency>
 
         <dependency>
+            <groupId>com.github.seancfoley</groupId>
+            <artifactId>ipaddress</artifactId>
+            <version>5.3.4</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.36</version>
+            <version>1.8.0-alpha0</version>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>1.7.36</version>
+            <version>1.8.0-alpha0</version>
         </dependency>
 
         <dependency>
@@ -160,32 +170,53 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
-            <version>4.1.77.Final</version>
+            <version>4.1.78.Final</version>
         </dependency>
 
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport</artifactId>
-            <version>4.1.77.Final</version>
+            <version>4.1.78.Final</version>
         </dependency>
 
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec</artifactId>
-            <version>4.1.77.Final</version>
+            <version>4.1.78.Final</version>
         </dependency>
 
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec-http</artifactId>
-            <version>4.1.77.Final</version>
+            <version>4.1.78.Final</version>
         </dependency>
 
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
-            <version>20180130</version>
+            <version>20180813</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.8.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest</artifactId>
+            <version>2.2</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--<dependency>
+            <groupId>org.graalvm.buildtools</groupId>
+            <artifactId>junit-platform-native</artifactId>
+            <version>0.9.3</version>
+            <scope>runtime</scope>
+        </dependency>-->
 
     </dependencies>
 

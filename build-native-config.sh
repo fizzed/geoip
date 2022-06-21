@@ -2,25 +2,19 @@
 
 JAVA_HOME=/usr/lib/jvm/graalvm-ce-java17-22.1.0
 
-# build shaded jar version first
-mvn clean package
+# leverage tests w/ graalvm so it can generate necessary reflection info
+mvn -Pnative -Dagent=true clean test
 
-# start server in background
-$JAVA_HOME/bin/java -agentlib:native-image-agent=config-output-dir=target/native-image-config -jar target/geoip-0.0.1-SNAPSHOT.jar --try-all-editions=true --static-data-file data/GeoLite2-City.mmdb &
-APP_PID=$!
+# target/native/agent-output/test/session-3840993-20220621T192036Z
+# locate latest session of native reflect-config
+AGENT_TARGET_DIR="target/native/agent-output/test"
+SESSION_DIR_NAME=$(ls "$AGENT_TARGET_DIR" | head -1)
+SESSION_DIR="$AGENT_TARGET_DIR/$SESSION_DIR_NAME"
 
-# let it startup in a few seconds
-sleep 2
-
-# hit the server once (one w/ a postal code is key)
-curl http://localhost:18888/api/v1/ips/24.192.251.98
-
-# kill the app (mimic CTRL-C)
-kill -TERM $APP_PID
-sleep 2
+echo "Session directory: $SESSION_DIR"
 
 rm -f src/main/native-image/reflect-config.json
-mv target/native-image-config/reflect-config.json src/main/native-image/reflect-config.json
+cp -v "$SESSION_DIR/reflect-config.json" src/main/native-image/reflect-config.json
 
 rm -f src/main/native-image/resource-config.json
-mv target/native-image-config/resource-config.json src/main/native-image/resource-config.json
+cp -v "$SESSION_DIR/resource-config.json" src/main/native-image/resource-config.json

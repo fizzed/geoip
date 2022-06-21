@@ -2,7 +2,10 @@ package com.fizzed.geoip.models;
 
 public class IpLocation {
 
-    private String ip;
+    private String ip;                  // ip echoed that was queried
+    private Integer version;            // 4 or 6
+    private String canonicalIp;
+    private String normalizedIp;        // well-formed, normalized ip
     private String countryCode;
     private String countryName;
     private String regionCode;
@@ -19,6 +22,33 @@ public class IpLocation {
 
     public IpLocation setIp(String ip) {
         this.ip = ip;
+        return this;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public IpLocation setVersion(Integer version) {
+        this.version = version;
+        return this;
+    }
+
+    public String getCanonicalIp() {
+        return canonicalIp;
+    }
+
+    public IpLocation setCanonicalIp(String canonicalIp) {
+        this.canonicalIp = canonicalIp;
+        return this;
+    }
+
+    public String getNormalizedIp() {
+        return normalizedIp;
+    }
+
+    public IpLocation setNormalizedIp(String normalizedIp) {
+        this.normalizedIp = normalizedIp;
         return this;
     }
 

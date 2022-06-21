@@ -11,11 +11,23 @@ import java.util.Map;
 public class Request {
 
     private final HttpRequest request;
+    private final String localAddress;
+    private final String remoteAddress;
     private final QueryStringDecoder queryStringDecoder;
 
-    public Request(HttpRequest request) {
+    public Request(String localAddress, String remoteAddress, HttpRequest request) {
         this.request = request;
+        this.localAddress = localAddress;
+        this.remoteAddress = remoteAddress;
         this.queryStringDecoder = new QueryStringDecoder(this.getUri());
+    }
+
+    public String getLocalAddress() {
+        return localAddress;
+    }
+
+    public String getRemoteAddress() {
+        return remoteAddress;
     }
 
     public String getMethod() {
@@ -32,6 +44,10 @@ public class Request {
 
     public Map<String, List<String>> getQueryParameters() {
         return this.queryStringDecoder.parameters();
+    }
+
+    public String getHeader(String name) {
+        return this.request.headers().get(name);
     }
 
     public String getBodyAsString() {
