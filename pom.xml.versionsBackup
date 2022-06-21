@@ -1,0 +1,192 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.fizzed</groupId>
+    <artifactId>geoip</artifactId>
+    <version>0.0.2-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    
+    <parent>
+        <groupId>com.fizzed</groupId>
+        <artifactId>maven-parent</artifactId>
+        <version>2.2.1</version>
+    </parent>
+    
+    <properties>
+        <java.version>11</java.version>
+    </properties>
+
+    <scm>
+        <url>https://github.com/fizzed/geoip</url>
+        <connection>scm:git:git@github.com:fizzed/geoip.git</connection>
+    </scm>
+
+    <build>
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+                <version>1.7.0</version>
+            </extension>
+        </extensions>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <!--<shadedArtifactAttached>true</shadedArtifactAttached>-->
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>com.fizzed.geoip.GeoipServer</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>native</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>kr.motd.maven</groupId>
+                        <artifactId>os-maven-plugin</artifactId>
+                        <version>1.7.0</version>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.graalvm.buildtools</groupId>
+                        <artifactId>native-maven-plugin</artifactId>
+                        <version>0.9.11</version>
+                        <extensions>true</extensions>
+                        <executions>
+                            <execution>
+                                <id>build-native</id>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                                <phase>package</phase>
+                            </execution>
+                            <!--<execution>
+                                <id>test-native</id>
+                                <goals>
+                                    <goal>test</goal>
+                                </goals>
+                                <phase>test</phase>
+                            </execution>-->
+                        </executions>
+                        <configuration>
+                            <!-- windows compile issue, this helps fix it: https://graalvm.github.io/native-build-tools/latest/maven-plugin.html#long_classpath_and_shading_support -->
+                            <useArgFile>false</useArgFile>
+                            <classpath>
+                                <param>${project.build.directory}/${project.artifactId}-${project.version}.jar</param>
+                            </classpath>
+					        <!-- normal config that works on linux -->
+                            <imageName>geoip-server-${os.detected.name}-${os.detected.arch}</imageName>
+                            <mainClass>com.fizzed.geoip.GeoipServer</mainClass>
+                            <buildArgs>
+<!--                                <buildArg>&#45;&#45;static</buildArg>-->
+                                <buildArg>--no-fallback</buildArg>
+                                <buildArg>-H:+ReportExceptionStackTraces</buildArg>
+                                <buildArg>-H:ReflectionConfigurationFiles=${project.basedir}/src/main/native-image/reflect-config.json</buildArg>
+                                <buildArg>--trace-object-instantiation=org.slf4j.impl.SimpleLogger</buildArg>
+                                <buildArg>--initialize-at-build-time=org.slf4j.LoggerFactory</buildArg>
+                                <buildArg>--initialize-at-build-time=org.slf4j.simple.SimpleLogger</buildArg>
+                                <buildArg>--initialize-at-build-time=org.slf4j.impl.SimpleLogger</buildArg>
+                                <buildArg>--initialize-at-build-time=org.slf4j.impl.StaticLoggerBinder</buildArg>
+                                <buildArg>-H:IncludeResources=.*/.*properties$</buildArg>
+                            </buildArgs>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.maxmind.geoip2</groupId>
+            <artifactId>geoip2</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.sourceforge.argparse4j</groupId>
+            <artifactId>argparse4j</artifactId>
+            <version>0.9.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.36</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>1.7.36</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fizzed</groupId>
+            <artifactId>crux-uri</artifactId>
+            <version>1.0.41</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fizzed</groupId>
+            <artifactId>crux-util</artifactId>
+            <version>1.0.41</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.21</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-handler</artifactId>
+            <version>4.1.77.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-transport</artifactId>
+            <version>4.1.77.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec</artifactId>
+            <version>4.1.77.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-codec-http</artifactId>
+            <version>4.1.77.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20180130</version>
+        </dependency>
+
+    </dependencies>
+
+</project>
