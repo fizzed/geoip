@@ -9,6 +9,9 @@ import io.netty.handler.codec.http.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
+
+import static com.fizzed.crux.util.Maybe.maybe;
 import static io.netty.handler.codec.http.HttpHeaderValues.CLOSE;
 
 public class MicroHttpdHandler extends SimpleChannelInboundHandler<HttpObject> {
@@ -32,9 +35,17 @@ public class MicroHttpdHandler extends SimpleChannelInboundHandler<HttpObject> {
         if (msg instanceof HttpRequest) {
             //log.info("Http request...{}", msg.getClass().getCanonicalName());
 
+            final String localAddress = maybe(ctx.channel().localAddress())
+                .typed(InetSocketAddress.class)
+                .map(v -> v.getHostString())
+                .orNull();
+            final String remoteAddress = maybe(ctx.channel().remoteAddress())
+                .typed(InetSocketAddress.class)
+                .map(v -> v.getHostString())
+                .orNull();
             final HttpRequest httpRequest = (HttpRequest)msg;
             final boolean keepAlive = HttpUtil.isKeepAlive(httpRequest);
-            final Request request = new Request(httpRequest);
+            final Request request = new Request(localAddress, remoteAddress, httpRequest);
             Response response;
 
             // lookup the route

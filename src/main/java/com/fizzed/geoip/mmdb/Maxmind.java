@@ -7,6 +7,9 @@ import com.maxmind.geoip2.DatabaseReader;
 import com.maxmind.geoip2.model.CityResponse;
 import com.maxmind.geoip2.model.CountryResponse;
 import com.maxmind.geoip2.record.*;
+import inet.ipaddr.AddressStringException;
+import inet.ipaddr.IPAddress;
+import inet.ipaddr.IPAddressString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -353,7 +356,19 @@ public class Maxmind {
     }
 
     public IpLocation lookup(String ip) throws IOException, InterruptedException {
-        final InetAddress address = InetAddress.getByName(ip);
+
+        final IPAddressString address = new IPAddressString(ip);
+
+        try {
+            address.validate();
+        } catch (AddressStringException e) {
+            throw new IOException(e.getMessage(), e);
+        }
+
+        final IPAddress hostAddress = address.getHostAddress();
+        final InetAddress inetAddress = address.getAddress().toInetAddress();
+
+        //final InetAddress address = InetAddress.getByName(ip);
 
         if (!this.dataReadLock.tryLock(5, TimeUnit.SECONDS)) {
             throw new IOException("Unable to acquire read lock");
@@ -384,7 +399,7 @@ public class Maxmind {
 
 
                 if (tryAllEditions || this.edition == MaxmindEdition.CITY) {
-                    Optional<CityResponse> cityResponse = this.reader.tryCity(address);
+                    Optional<CityResponse> cityResponse = this.reader.tryCity(inetAddress);
                     if (cityResponse.isPresent()) {
                         location = cityResponse.get().getLocation();
                         city = cityResponse.get().getCity();
@@ -395,7 +410,7 @@ public class Maxmind {
                 }
 
                 if (tryAllEditions || this.edition == MaxmindEdition.COUNTRY) {
-                    Optional<CountryResponse> countryResponse = this.reader.tryCountry(address);
+                    Optional<CountryResponse> countryResponse = this.reader.tryCountry(inetAddress);
                     if (countryResponse.isPresent()) {
                         country = countryResponse.get().getCountry();
                     }
@@ -412,6 +427,10 @@ public class Maxmind {
 
             return new IpLocation()
                 .setIp(ip)
+                .setCanonicalIp(hostAddress.toCanonicalString())
+                //.setFullIp(hostAddress.toFullString())
+                .setNormalizedIp(address.toNormalizedString())
+                .setVersion(address.isIPv6() ? 6 : 4)
                 .setCountryCode(ofNullable(country).map(v -> v.getIsoCode()).orElse(null))
                 .setCountryName(ofNullable(country).map(v -> v.getName()).orElse(null))
                 .setCityName(ofNullable(city).map(v -> v.getName()).orElse(null))
