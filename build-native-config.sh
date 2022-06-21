@@ -1,6 +1,7 @@
 #!/bin/sh
 
-JAVA_HOME=/usr/lib/jvm/graalvm-ce-java17-22.1.0
+# we MUST use a java home that equals the graalvm home
+JAVA_HOME=$GRAALVM_HOME
 
 # leverage tests w/ graalvm so it can generate necessary reflection info
 mvn -Pnative -Dagent=true clean test
