@@ -1,1 +1,1 @@
-docker build --file Dockerfile-alpine --tag graalvm-alpine .
+docker build --file container/Dockerfile-alpine --target builder --tag graalvm-alpine .

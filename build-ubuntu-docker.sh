@@ -1,1 +1,1 @@
-docker build --file Dockerfile-ubuntu --tag graalvm-ubuntu .
+docker build --file container/Dockerfile-ubuntu --tag graalvm-ubuntu .
