@@ -1,1 +1,11 @@
-docker build --file container/Dockerfile-alpine --target builder --tag graalvm-alpine .
+ARCH=$(uname -p)
+GRAALVM_ARCH="amd64"
+
+echo "Detected arch $ARCH"
+
+if [[ $ARCH == "aarch64" ]]; then
+  GRAALVM_ARCH="aarch64"
+  echo "Updating arch to aarch64!"
+fi
+
+docker build --build-arg GRAALVM_ARCH=$GRAALVM_ARCH --file Dockerfile.alpine --tag graalvm-alpine .
