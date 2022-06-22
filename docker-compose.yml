@@ -24,6 +24,7 @@ services:
       - .:/project
 
   alpine_native:
+    image: graalvm-alpine-builder
     extends:
       service: alpine_builder
     command: [
@@ -61,5 +62,22 @@ services:
       #- ./data/GeoLite2-Country.mmdb:/tmp/geoip-data/current.mmdb:ro
       #- ./data:/tmp/geoip-data:ro
       #- data:/tmp/geoip-data
+    ports:
+      - "18888:18888"
+
+
+  alpine_released:
+    build:
+      dockerfile: Dockerfile-released
+      context: container
+      args:
+        GEOIP_VER: ${GEOIP_VER:-0.0.4}
+        GEOIP_ARCH: ${GEOIP_ARCH:-x86_64}
+    image: geoip-released:${GEOIP_VER}
+    init: true
+    environment:
+      GEOIP_LICENSE_KEY: ${LICENSE_KEY}
+    volumes:
+      - data:/tmp
     ports:
       - "18888:18888"

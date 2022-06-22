@@ -46,6 +46,7 @@ FROM builder as built
 
 COPY pom.xml .
 COPY src ./src/
+COPY data ./data/
 
 RUN source /etc/profile ; mvn -Pnative clean package
 

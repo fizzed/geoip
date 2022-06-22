@@ -1,8 +1,10 @@
 all: run
 
-run: alpine-native-run
+#run: alpine-native-run
+run: alpine-native-released-run
 
-build: alpine-native-build
+#build: alpine-native-build
+build: alpine-native-released-image
 
 run_local: alpine-native-run-local
 
@@ -31,3 +33,12 @@ alpine-native-run: alpine-native-image
 
 alpine-native-run-local: alpine-native-build
 	docker-compose up alpine_native_run_local
+
+
+## Simple images for released binaries
+
+alpine-native-released-image:
+	docker-compose build alpine_released
+
+alpine-native-released-run:
+	-docker-compose up alpine_released

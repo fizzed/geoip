@@ -1,0 +1,11 @@
+FROM alpine
+
+ARG GEOIP_VER=0.0.4
+
+ARG GEOIP_ARCH=x86_64
+
+ENTRYPOINT [ "/usr/local/bin/geoip-server" ]
+
+
+RUN wget -O /usr/local/bin/geoip-server https://github.com/fizzed/geoip/releases/download/v${GEOIP_VER}/geoip-server-alpine-${GEOIP_ARCH} \
+    && chmod +x /usr/local/bin/geoip-server
